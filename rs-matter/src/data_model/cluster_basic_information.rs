@@ -23,8 +23,8 @@ use crate::{
     error::{Error, ErrorCode},
     utils::rand::Rand,
 };
-use rs_matter_macros::idl_import;
 use heapless::String;
+use rs_matter_macros::idl_import;
 use strum::FromRepr;
 
 idl_import!(clusters = ["BasicInformation"]);
