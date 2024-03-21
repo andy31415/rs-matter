@@ -26,9 +26,13 @@ use crate::{
     tlv::{TLVWriter, TagType, ToTLV},
 };
 use chrono::{DateTime, NaiveDate};
+use rs_matter_macros::idl_import;
 use num_derive::FromPrimitive;
 
-pub const ID: u32 = 0x0506;
+idl_import!(clusters = ["MediaPlayback"]);
+
+pub use media_playback::ID;
+
 #[derive(FromPrimitive)]
 pub enum Attributes {
     CurrentState = 0x0,

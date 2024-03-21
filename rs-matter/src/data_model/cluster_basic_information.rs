@@ -23,10 +23,13 @@ use crate::{
     error::{Error, ErrorCode},
     utils::rand::Rand,
 };
+use rs_matter_macros::idl_import;
 use heapless::String;
 use strum::FromRepr;
 
-pub const ID: u32 = 0x0028;
+idl_import!(clusters = ["BasicInformation"]);
+
+pub use basic_information::ID;
 
 #[derive(Clone, Copy, Debug, FromRepr)]
 #[repr(u16)]
