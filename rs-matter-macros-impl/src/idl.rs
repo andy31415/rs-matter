@@ -201,7 +201,7 @@ fn struct_field_definition(f: &StructField, context: &IdlGenerateContext) -> Tok
         _ => quote!(),
     };
 
-    let _code = Literal::u8_unsuffixed(f.field.code as u8);
+    let code = Literal::u8_unsuffixed(f.field.code as u8);
     let field_type = field_type(&f.field.data_type);
     let name = Ident::new(&idl_field_name_to_rs_name(&f.field.id), Span::call_site());
     let rs_matter_crate = context.rs_matter_crate.clone();
@@ -220,7 +220,7 @@ fn struct_field_definition(f: &StructField, context: &IdlGenerateContext) -> Tok
 
     quote!(
       #doc_comment
-      // #[tagval(#code)] - TODO: add this once we support to/from TLV
+      #[tagval(#code)]
       #name: #field_type
     )
 }
@@ -253,9 +253,18 @@ fn struct_definition(s: &Struct, context: &IdlGenerateContext) -> TokenStream {
     // at least
 
     let fields = s.fields.iter().map(|f| struct_field_definition(f, context));
+    let rs_matter_crate = context.rs_matter_crate.clone();
 
     quote!(
-        #[derive(Debug, PartialEq, Eq, Clone, Hash)]
+        #[derive(
+            Debug, 
+            PartialEq, 
+            Eq, 
+            Clone, 
+            Hash, 
+            #rs_matter_crate::traits::FromTLV, 
+            #rs_matter_crate::traits::ToTLV
+        )]
         pub struct #name {
            #(#fields),*
         }
@@ -370,32 +379,41 @@ mod tests {
         assert_tokenstreams_eq!(
             &defs,
             &quote!(
-                #[derive(Debug, PartialEq, Eq, Clone, Hash)]
+                #[derive(Debug, PartialEq, Eq, Clone, Hash, rs_matter_crate::traits::FromTLV, rs_matter_crate::traits::ToTLV)]
                 pub struct NetworkInfoStruct {
+                    #[tagval(1)]
                     connected: bool,
+                    #[tagval(2)]
                     test_optional: Option<u8>,
+                    #[tagval(3)]
                     test_nullable: rs_matter_crate::tlv::Nullable<u16>,
+                    #[tagval(4)]
                     test_both: Option<rs_matter_crate::tlv::Nullable<u32>>,
                 }
 
-                #[derive(Debug, PartialEq, Eq, Clone, Hash)]
+                #[derive(Debug, PartialEq, Eq, Clone, Hash, rs_matter_crate::traits::FromTLV, rs_matter_crate::traits::ToTLV)]
                 pub struct IdentifyRequest {
+                    #[tagval(0)]
                     identify_time: u16,
                 }
 
-                #[derive(Debug, PartialEq, Eq, Clone, Hash)]
+                #[derive(Debug, PartialEq, Eq, Clone, Hash, rs_matter_crate::traits::FromTLV, rs_matter_crate::traits::ToTLV)]
                 pub struct SomeRequest {
+                    #[tagval(0)]
                     group: u16,
                 }
 
-                #[derive(Debug, PartialEq, Eq, Clone, Hash)]
+                #[derive(Debug, PartialEq, Eq, Clone, Hash, rs_matter_crate::traits::FromTLV, rs_matter_crate::traits::ToTLV)]
                 pub struct TestResponse {
+                    #[tagval(0)]
                     capacity: u8,
                 }
 
-                #[derive(Debug, PartialEq, Eq, Clone, Hash)]
+                #[derive(Debug, PartialEq, Eq, Clone, Hash, rs_matter_crate::traits::FromTLV, rs_matter_crate::traits::ToTLV)]
                 pub struct AnotherResponse {
+                    #[tagval(0)]
                     status: u8,
+                    #[tagval(12)]
                     group_id: u16,
                 }
             )
@@ -530,16 +548,21 @@ mod tests {
                         Toggle = 2,
                     }
 
-                    #[derive(Debug, PartialEq, Eq, Clone, Hash)]
+                    #[derive(Debug, PartialEq, Eq, Clone, Hash, rs_matter_crate::traits::FromTLV, rs_matter_crate::traits::ToTLV)]
                     pub struct OffWithEffectRequest {
+                        #[tagval(0)]
                         effect_identifier: EffectIdentifierEnum,
+                        #[tagval(1)]
                         effect_variant: u8,
                     }
 
-                    #[derive(Debug, PartialEq, Eq, Clone, Hash)]
+                    #[derive(Debug, PartialEq, Eq, Clone, Hash, rs_matter_crate::traits::FromTLV, rs_matter_crate::traits::ToTLV)]
                     pub struct OnWithTimedOffRequest {
+                        #[tagval(0)]
                         on_off_control: OnOffControlBitmap,
+                        #[tagval(1)]
                         on_time: u16,
+                        #[tagval(2)]
                         off_wait_time: u16,
                     }
 
