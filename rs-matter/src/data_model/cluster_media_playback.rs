@@ -31,8 +31,8 @@ use rs_matter_macros::idl_import;
 
 idl_import!(clusters = ["MediaPlayback"]);
 
-pub use media_playback::ID;
 pub use media_playback::Commands;
+pub use media_playback::ID;
 
 #[derive(FromPrimitive)]
 pub enum Attributes {
