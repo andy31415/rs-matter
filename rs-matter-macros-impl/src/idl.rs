@@ -497,7 +497,7 @@ mod tests {
             &server_side_cluster_generate(cluster, &context),
             &quote!(
                 mod on_off {
-                    use rs_matter_crate::{ToTLV, FromTLV};
+                    use rs_matter_crate::{FromTLV, ToTLV};
 
                     pub const ID: u32 = 6;
 
