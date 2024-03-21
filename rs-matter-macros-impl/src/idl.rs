@@ -191,7 +191,6 @@ fn field_type(f: &DataType) -> TokenStream {
 }
 
 fn struct_field_definition(f: &StructField, context: &IdlGenerateContext) -> TokenStream {
-
     // f.fabric_sensitive does not seem to have any specific meaning so we ignore it
     // fabric_sensitive seems to be specific to fabric_scoped structs
 
@@ -263,7 +262,10 @@ fn struct_definition(s: &Struct, context: &IdlGenerateContext) -> TokenStream {
     )
 }
 
-pub fn server_side_cluster_generate(cluster: &Cluster, context: &IdlGenerateContext) -> TokenStream {
+pub fn server_side_cluster_generate(
+    cluster: &Cluster,
+    context: &IdlGenerateContext,
+) -> TokenStream {
     let cluster_module_name = Ident::new(&cluster.id.to_case(Case::Snake), Span::call_site());
 
     let mut commands = Vec::new();
@@ -280,7 +282,10 @@ pub fn server_side_cluster_generate(cluster: &Cluster, context: &IdlGenerateCont
 
     let bitmap_declarations = cluster.bitmaps.iter().map(bitmap_definition);
     let enum_declarations = cluster.enums.iter().map(enum_definition);
-    let struct_declarations = cluster.structs.iter().map(|s| struct_definition(s, context));
+    let struct_declarations = cluster
+        .structs
+        .iter()
+        .map(|s| struct_definition(s, context));
 
     quote!(
         mod #cluster_module_name {
@@ -353,7 +358,11 @@ mod tests {
         let cluster = get_cluster_named(&idl, "TestForStructs").expect("Cluster exists");
         let context = IdlGenerateContext::new("rs_matter_crate");
 
-        let defs: TokenStream = cluster.structs.iter().map(|c| struct_definition(c, &context)).collect();
+        let defs: TokenStream = cluster
+            .structs
+            .iter()
+            .map(|c| struct_definition(c, &context))
+            .collect();
 
         assert_tokenstreams_eq!(
             &defs,
