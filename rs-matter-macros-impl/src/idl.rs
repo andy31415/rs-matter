@@ -253,18 +253,9 @@ fn struct_definition(s: &Struct, context: &IdlGenerateContext) -> TokenStream {
     // at least
 
     let fields = s.fields.iter().map(|f| struct_field_definition(f, context));
-    let rs_matter_crate = context.rs_matter_crate.clone();
 
     quote!(
-        #[derive(
-            Debug, 
-            PartialEq, 
-            Eq, 
-            Clone, 
-            Hash, 
-            #rs_matter_crate::traits::FromTLV, 
-            #rs_matter_crate::traits::ToTLV
-        )]
+        #[derive(Debug, PartialEq, Eq, Clone, Hash, FromTLV, ToTLV)]
         pub struct #name {
            #(#fields),*
         }
@@ -295,9 +286,12 @@ pub fn server_side_cluster_generate(
         .structs
         .iter()
         .map(|s| struct_definition(s, context));
+    let rs_matter_crate = context.rs_matter_crate.clone();
 
     quote!(
         mod #cluster_module_name {
+            use #rs_matter_crate::{ToTLV, FromTLV};
+
             pub const ID: u32 = #cluster_code;
 
             #(#bitmap_declarations)*
@@ -379,7 +373,7 @@ mod tests {
         assert_tokenstreams_eq!(
             &defs,
             &quote!(
-                #[derive(Debug, PartialEq, Eq, Clone, Hash, rs_matter_crate::traits::FromTLV, rs_matter_crate::traits::ToTLV)]
+                #[derive(Debug, PartialEq, Eq, Clone, Hash, FromTLV, ToTLV)]
                 pub struct NetworkInfoStruct {
                     #[tagval(1)]
                     connected: bool,
@@ -391,25 +385,25 @@ mod tests {
                     test_both: Option<rs_matter_crate::tlv::Nullable<u32>>,
                 }
 
-                #[derive(Debug, PartialEq, Eq, Clone, Hash, rs_matter_crate::traits::FromTLV, rs_matter_crate::traits::ToTLV)]
+                #[derive(Debug, PartialEq, Eq, Clone, Hash, FromTLV, ToTLV)]
                 pub struct IdentifyRequest {
                     #[tagval(0)]
                     identify_time: u16,
                 }
 
-                #[derive(Debug, PartialEq, Eq, Clone, Hash, rs_matter_crate::traits::FromTLV, rs_matter_crate::traits::ToTLV)]
+                #[derive(Debug, PartialEq, Eq, Clone, Hash, FromTLV, ToTLV)]
                 pub struct SomeRequest {
                     #[tagval(0)]
                     group: u16,
                 }
 
-                #[derive(Debug, PartialEq, Eq, Clone, Hash, rs_matter_crate::traits::FromTLV, rs_matter_crate::traits::ToTLV)]
+                #[derive(Debug, PartialEq, Eq, Clone, Hash, FromTLV, ToTLV)]
                 pub struct TestResponse {
                     #[tagval(0)]
                     capacity: u8,
                 }
 
-                #[derive(Debug, PartialEq, Eq, Clone, Hash, rs_matter_crate::traits::FromTLV, rs_matter_crate::traits::ToTLV)]
+                #[derive(Debug, PartialEq, Eq, Clone, Hash, FromTLV, ToTLV)]
                 pub struct AnotherResponse {
                     #[tagval(0)]
                     status: u8,
@@ -503,6 +497,8 @@ mod tests {
             &server_side_cluster_generate(cluster, &context),
             &quote!(
                 mod on_off {
+                    use rs_matter_crate::{ToTLV, FromTLV};
+
                     pub const ID: u32 = 6;
 
                     bitflags::bitflags! {
@@ -548,7 +544,7 @@ mod tests {
                         Toggle = 2,
                     }
 
-                    #[derive(Debug, PartialEq, Eq, Clone, Hash, rs_matter_crate::traits::FromTLV, rs_matter_crate::traits::ToTLV)]
+                    #[derive(Debug, PartialEq, Eq, Clone, Hash, FromTLV, ToTLV)]
                     pub struct OffWithEffectRequest {
                         #[tagval(0)]
                         effect_identifier: EffectIdentifierEnum,
@@ -556,7 +552,7 @@ mod tests {
                         effect_variant: u8,
                     }
 
-                    #[derive(Debug, PartialEq, Eq, Clone, Hash, rs_matter_crate::traits::FromTLV, rs_matter_crate::traits::ToTLV)]
+                    #[derive(Debug, PartialEq, Eq, Clone, Hash, FromTLV, ToTLV)]
                     pub struct OnWithTimedOffRequest {
                         #[tagval(0)]
                         on_off_control: OnOffControlBitmap,
