@@ -290,8 +290,10 @@ pub fn server_side_cluster_generate(
 
     quote!(
         mod #cluster_module_name {
-            use #rs_matter_crate::{ToTLV, FromTLV};
-
+            use #rs_matter_crate::{
+                error::Error,
+                tlv::{FromTLV, ToTLV},
+            };
             pub const ID: u32 = #cluster_code;
 
             #(#bitmap_declarations)*
@@ -497,7 +499,10 @@ mod tests {
             &server_side_cluster_generate(cluster, &context),
             &quote!(
                 mod on_off {
-                    use rs_matter_crate::{FromTLV, ToTLV};
+                    use rs_matter_crate::{
+                            error::Error,
+                            tlv::{FromTLV, ToTLV},
+                    };
 
                     pub const ID: u32 = 6;
 
