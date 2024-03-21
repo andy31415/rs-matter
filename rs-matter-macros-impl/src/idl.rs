@@ -331,6 +331,9 @@ mod tests {
                 // a somewhat complex struct
                 struct NetworkInfoStruct {
                   boolean connected = 1;
+                  optional int8u test_optional = 2;
+                  nullable int16u test_nullable = 3;
+                  optional nullable int32u test_both = 4;
                 }
 
                 // Some varying requests
@@ -370,6 +373,9 @@ mod tests {
                 #[derive(Debug, PartialEq, Eq, Clone, Hash)]
                 pub struct NetworkInfoStruct {
                     connected: bool,
+                    test_optional: Option<u8>,
+                    test_nullable: rs_matter_crate::tlv::Nullable<u16>,
+                    test_both: Option<rs_matter_crate::tlv::Nullable<u32>>,
                 }
 
                 #[derive(Debug, PartialEq, Eq, Clone, Hash)]
